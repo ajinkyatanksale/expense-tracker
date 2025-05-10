@@ -1,22 +1,15 @@
 package com.ajinkya.expensetracker.dto.expense;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class NewExpenseResponse {
     boolean isRecordCreated;
     String message;
-
-    public boolean isRecordCreated() {
-        return isRecordCreated;
-    }
-
-    public void setRecordCreated(boolean recordCreated) {
-        isRecordCreated = recordCreated;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

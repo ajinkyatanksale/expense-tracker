@@ -9,9 +9,12 @@ import com.ajinkya.expensetracker.dto.expense.NewExpenseResponse;
 import com.ajinkya.expensetracker.entity.ExpenseEntity;
 import com.ajinkya.expensetracker.entity.UserEntity;
 import com.ajinkya.expensetracker.service.ExpenseManagementService;
+import com.ajinkya.expensetracker.util.enums.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +42,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 expenseInfo.setAmount(e.getAmount());
                 expenseInfo.setNote(e.getNote());
                 expenseInfo.setInsert_dt(e.getInsertDate());
+                expenseInfo.setCategory(e.getCategory());
                 expenseInfoList.add(expenseInfo);
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
@@ -53,6 +57,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
         expenseEntity.setAmount(newExpenseRequest.getAmount());
         expenseEntity.setNote(newExpenseRequest.getNote());
         expenseEntity.setInsertDate(new Timestamp(System.currentTimeMillis()));
+        expenseEntity.setCategory(newExpenseRequest.getCategory());
         Optional<UserEntity> user = userManagementDao.findById(customerId);
         user.ifPresent(expenseEntity::setUser);
         ExpenseEntity expenseEntity1 = expenseDao.save(expenseEntity);
@@ -65,5 +70,75 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             newExpenseResponse.setRecordCreated(false);
         }
         return newExpenseResponse;
+    }
+
+    @Override
+    public GetAllExpenseResponse getAllExpensesByTitle(long customerId, String title) {
+        GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
+        Optional<UserEntity> user = userManagementDao.findById(customerId);
+        if (user.isPresent()) {
+            List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndTitle(user.get(), title);
+            List<ExpenseInfo> expenseInfoList = new ArrayList<>();
+            for (ExpenseEntity e : expenseEntity) {
+                ExpenseInfo expenseInfo = new ExpenseInfo();
+                expenseInfo.setExpenseTitle(e.getExpenseTitle());
+                expenseInfo.setAmount(e.getAmount());
+                expenseInfo.setNote(e.getNote());
+                expenseInfo.setInsert_dt(e.getInsertDate());
+                expenseInfo.setCategory(e.getCategory());
+                expenseInfoList.add(expenseInfo);
+            }
+            getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+        }
+        return getAllExpenseResponse;
+    }
+
+    @Override
+    public GetAllExpenseResponse getAllExpensesByCategory(long customerId, Category category) {
+        GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
+        Optional<UserEntity> user = userManagementDao.findById(customerId);
+        if (user.isPresent()) {
+            List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndCategory(user.get(), category);
+            List<ExpenseInfo> expenseInfoList = new ArrayList<>();
+            for (ExpenseEntity e : expenseEntity) {
+                ExpenseInfo expenseInfo = new ExpenseInfo();
+                expenseInfo.setExpenseTitle(e.getExpenseTitle());
+                expenseInfo.setAmount(e.getAmount());
+                expenseInfo.setNote(e.getNote());
+                expenseInfo.setInsert_dt(e.getInsertDate());
+                expenseInfo.setCategory(e.getCategory());
+                expenseInfoList.add(expenseInfo);
+            }
+            getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+        }
+        return getAllExpenseResponse;
+    }
+
+    @Override
+    public GetAllExpenseResponse getAllExpensesByDate(long customerId, String date) {
+        try {
+            GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
+            Optional<UserEntity> user = userManagementDao.findById(customerId);
+            if (user.isPresent()) {
+                String format = "yyyy-MM-dd";
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndDate(user.get(), new Timestamp(dateFormat.parse(date).getTime()));
+                List<ExpenseInfo> expenseInfoList = new ArrayList<>();
+                for (ExpenseEntity e : expenseEntity) {
+                    ExpenseInfo expenseInfo = new ExpenseInfo();
+                    expenseInfo.setExpenseTitle(e.getExpenseTitle());
+                    expenseInfo.setAmount(e.getAmount());
+                    expenseInfo.setNote(e.getNote());
+                    expenseInfo.setInsert_dt(e.getInsertDate());
+                    expenseInfo.setCategory(e.getCategory());
+                    expenseInfoList.add(expenseInfo);
+                }
+                getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+            }
+            return getAllExpenseResponse;
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+            return null;
+        }
     }
 }

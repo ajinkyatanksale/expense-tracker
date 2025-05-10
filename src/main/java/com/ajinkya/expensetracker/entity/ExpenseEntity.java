@@ -1,11 +1,21 @@
 package com.ajinkya.expensetracker.entity;
 
+import com.ajinkya.expensetracker.util.enums.Category;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.sql.Timestamp;
 
 
 @Entity
 @Table(name="expense", schema="expense_tracker")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ExpenseEntity {
     @Id
     @Column(name="expense_id")
@@ -21,54 +31,10 @@ public class ExpenseEntity {
     private long amount;
     @Column(name="note")
     private String note;
+    @Enumerated(EnumType.STRING)
+    @Column(name="category")
+    private Category category;
     @Column(name="insert_dt")
     private Timestamp insertDate;
 
-    public long getExpenseId() {
-        return expenseId;
-    }
-
-    public void setExpenseId(long expenseId) {
-        this.expenseId = expenseId;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
-
-    public String getExpenseTitle() {
-        return expenseTitle;
-    }
-
-    public void setExpenseTitle(String expenseTitle) {
-        this.expenseTitle = expenseTitle;
-    }
-
-    public long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(long amount) {
-        this.amount = amount;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public Timestamp getInsertDate() {
-        return insertDate;
-    }
-
-    public void setInsertDate(Timestamp insertDate) {
-        this.insertDate = insertDate;
-    }
 }
