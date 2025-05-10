@@ -40,7 +40,6 @@ public class JwtHelper {
 
     private Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        logger.info("Expiration date" + expiration);
         return expiration.before(new Date());
     }
 
@@ -56,9 +55,7 @@ public class JwtHelper {
     }
 
     public Boolean validateToken(String token, UserInfo userDetails) {
-        logger.info(token + " " + userDetails.getUsername());
         final String username = getUsernameFromToken(token);
-        logger.info(token + " " + username);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }

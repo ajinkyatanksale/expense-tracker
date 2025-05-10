@@ -5,11 +5,13 @@ import com.ajinkya.expensetracker.dao.UserManagementDao;
 import com.ajinkya.expensetracker.dto.expense.ExpenseInfo;
 import com.ajinkya.expensetracker.dto.expense.GetAllExpenseResponse;
 import com.ajinkya.expensetracker.dto.expense.NewExpenseRequest;
-import com.ajinkya.expensetracker.dto.expense.NewExpenseResponse;
+import com.ajinkya.expensetracker.dto.expense.ExpenseResponse;
 import com.ajinkya.expensetracker.entity.ExpenseEntity;
 import com.ajinkya.expensetracker.entity.UserEntity;
 import com.ajinkya.expensetracker.service.ExpenseManagementService;
 import com.ajinkya.expensetracker.util.enums.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +32,18 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
     @Autowired
     UserManagementDao userManagementDao;
 
+    private final Logger logger = LoggerFactory.getLogger(ExpenseManagementServiceImpl.class);
+    private final String LOG_ENTRY = "Entry";
+    private final String LOG_EXIT = "EXIT";
+
     @Override
     public GetAllExpenseResponse getAllExpenses(long customerId) {
+        String logPrefix = "getAllExpenses()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
         Optional<UserEntity> user = userManagementDao.findById(customerId);
         if (user.isPresent()) {
+            logger.debug(logPrefix + "User found with customerId [" + user.get().getCustomerId() + "]");
             List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUser(user.get());
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
@@ -48,12 +57,16 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 expenseInfoList.add(expenseInfo);
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+            logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
         }
+        logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
     }
 
     @Override
-    public NewExpenseResponse addNewExpense(NewExpenseRequest newExpenseRequest, long customerId) {
+    public ExpenseResponse addNewExpense(NewExpenseRequest newExpenseRequest, long customerId) {
+        String logPrefix = "addNewExpense()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         ExpenseEntity expenseEntity = new ExpenseEntity();
         expenseEntity.setExpenseTitle(newExpenseRequest.getExpenseTitle());
         expenseEntity.setAmount(newExpenseRequest.getAmount());
@@ -63,22 +76,28 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
         Optional<UserEntity> user = userManagementDao.findById(customerId);
         user.ifPresent(expenseEntity::setUser);
         ExpenseEntity expenseEntity1 = expenseDao.save(expenseEntity);
-        NewExpenseResponse newExpenseResponse = new NewExpenseResponse();
+        ExpenseResponse expenseResponse = new ExpenseResponse();
         if (expenseEntity1.getExpenseId() > 0) {
-            newExpenseResponse.setMessage("New Expense added successfully");
-            newExpenseResponse.setRecordCreated(true);
+            expenseResponse.setMessage("New Expense added successfully");
+            expenseResponse.setRecordCreated(true);
+            logger.debug(logPrefix + "New Expense added successfully with customerId [" + customerId + "]");
         } else {
-            newExpenseResponse.setMessage("Error occurred while adding new expense. Please try again!!");
-            newExpenseResponse.setRecordCreated(false);
+            expenseResponse.setMessage("Error occurred while adding new expense. Please try again!!");
+            expenseResponse.setRecordCreated(false);
+            logger.error(logPrefix + "Error occurred while adding new expense for customerId [" + customerId + "]");
         }
-        return newExpenseResponse;
+        logger.debug(logPrefix + "[" + LOG_EXIT + "]");
+        return expenseResponse;
     }
 
     @Override
     public GetAllExpenseResponse getAllExpensesByTitle(long customerId, String title) {
+        String logPrefix = "getAllExpensesByTitle()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
         Optional<UserEntity> user = userManagementDao.findById(customerId);
         if (user.isPresent()) {
+            logger.debug(logPrefix + "User found with customerId [" + user.get().getCustomerId() + "]");
             List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndTitle(user.get(), title);
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
@@ -92,15 +111,20 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 expenseInfoList.add(expenseInfo);
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+            logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
         }
+        logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
     }
 
     @Override
     public GetAllExpenseResponse getAllExpensesByCategory(long customerId, Category category) {
+        String logPrefix = "getAllExpensesByCategory()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
         Optional<UserEntity> user = userManagementDao.findById(customerId);
         if (user.isPresent()) {
+            logger.debug(logPrefix + "User found with customerId [" + user.get().getCustomerId() + "]");
             List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndCategory(user.get(), category);
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
@@ -114,16 +138,21 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 expenseInfoList.add(expenseInfo);
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+            logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
         }
+        logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
     }
 
     @Override
     public GetAllExpenseResponse getAllExpensesByDate(long customerId, String date) {
+        String logPrefix = "getAllExpensesByDate()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         try {
             GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
             Optional<UserEntity> user = userManagementDao.findById(customerId);
             if (user.isPresent()) {
+                logger.debug(logPrefix + "User found with customerId [" + user.get().getCustomerId() + "]");
                 String format = "yyyy-MM-dd";
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format);
                 List<ExpenseEntity> expenseEntity = expenseDao.findExpenseByUserAndDate(user.get(), new Timestamp(dateFormat.parse(date).getTime()));
@@ -139,33 +168,39 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                     expenseInfoList.add(expenseInfo);
                 }
                 getAllExpenseResponse.setExpenseInfos(expenseInfoList);
+                logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
             }
+            logger.debug(logPrefix + "[" + LOG_EXIT + "]");
             return getAllExpenseResponse;
         } catch (ParseException pe) {
-            pe.printStackTrace();
+            logger.error(logPrefix + pe.getMessage());
             return null;
         }
     }
 
     @Override
     @Transactional
-    public NewExpenseResponse deleteExpenseById(long expenseId) {
+    public ExpenseResponse deleteExpenseById(long expenseId) {
+        String logPrefix = "deleteExpenseById()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         long deletedExpenseId = expenseDao.deleteExpenseByExpenseId(expenseId);
         if (deletedExpenseId > 0) {
-            return new NewExpenseResponse(true, "Record deleted successfully!");
+            return new ExpenseResponse(true, "Record deleted successfully!");
         } else {
-            return new NewExpenseResponse(false, "Record deletion failed!");
+            return new ExpenseResponse(false, "Record deletion failed!");
         }
     }
 
     @Override
     @Transactional
-    public NewExpenseResponse updateExpenseById(long expenseId, long amount) {
+    public ExpenseResponse updateExpenseById(long expenseId, long amount) {
+        String logPrefix = "updateExpenseById()";
+        logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         long updatedExpenseId = expenseDao.updateExpenseAmountByExpenseId(amount, expenseId);
         if (updatedExpenseId > 0) {
-            return new NewExpenseResponse(true, "Record updated successfully!");
+            return new ExpenseResponse(true, "Record updated successfully!");
         } else {
-            return new NewExpenseResponse(false, "Record update failed!");
+            return new ExpenseResponse(false, "Record update failed!");
         }
     }
 }

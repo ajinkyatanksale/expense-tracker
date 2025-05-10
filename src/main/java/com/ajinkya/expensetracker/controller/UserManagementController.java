@@ -5,6 +5,7 @@ import com.ajinkya.expensetracker.service.UserManagementService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,17 +20,17 @@ public class UserManagementController {
     private JwtHelper helper;
 
     @PostMapping("/enroll")
-    public EnrollResponse enrollUser(@Valid @RequestBody EnrollRequest enrollRequest, HttpSession session) {
+    public ResponseEntity<EnrollResponse> enrollUser(@Valid @RequestBody EnrollRequest enrollRequest, HttpSession session) {
         EnrollResponse enrollResponse = userManagementService.enrollUser(enrollRequest);
         session.setAttribute("name", enrollRequest.getName());
         session.setAttribute("username", enrollRequest.getUserName());
         session.setAttribute("age", enrollRequest.getAge());
         session.setAttribute("phoneNumber", enrollRequest.getPhoneNumber());
-        return enrollResponse;
+        return new ResponseEntity<>(enrollResponse, new HttpHeaders(), HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public LoginResponse loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpSession session) {
+    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpSession session) {
         LoginResponse loginResponse = userManagementService.loginUser(loginRequest);
 
         if (loginResponse.isLoginStatus()) {
@@ -41,7 +42,7 @@ public class UserManagementController {
             session.setAttribute("age", userInfo.getAge());
             session.setAttribute("phoneNumber", userInfo.getPhoneNumber());
         }
-        return loginResponse;
+        return new ResponseEntity<>(loginResponse, new HttpHeaders(), HttpStatus.OK);
     }
 
     @PostMapping("/otp")
@@ -51,6 +52,6 @@ public class UserManagementController {
 
     @GetMapping("/logout")
     public ResponseEntity<String> logoutUser(HttpSession session) {
-        return new ResponseEntity<String>("User successfully logged out.", HttpStatus.OK);
+        return new ResponseEntity<String>("User successfully logged out.", new HttpHeaders(), HttpStatus.OK);
     }
 }

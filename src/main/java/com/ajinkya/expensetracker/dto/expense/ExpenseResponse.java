@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewExpenseResponse {
+public class ExpenseResponse {
     boolean isRecordCreated;
     String message;
 }
