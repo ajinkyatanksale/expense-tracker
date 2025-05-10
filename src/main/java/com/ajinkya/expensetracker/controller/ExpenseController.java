@@ -81,4 +81,14 @@ public class ExpenseController {
         UserInfo userInfo = userManagementService.getUserInfo(username);
         return expenseManagementService.getAllExpensesByDate(userInfo.getCustomerId(), date);
     }
+
+    @DeleteMapping("/delete/{expenseId}")
+    public NewExpenseResponse deleteExpense(@PathVariable String expenseId) {
+        return expenseManagementService.deleteExpenseById(Long.parseLong(expenseId));
+    }
+
+    @PutMapping("/update/{expenseId}")
+    public NewExpenseResponse updateExpense(@PathVariable String expenseId, @RequestParam("amount") String amount) {
+        return expenseManagementService.updateExpenseById(Long.parseLong(expenseId), Long.parseLong(amount));
+    }
 }

@@ -12,6 +12,7 @@ import com.ajinkya.expensetracker.service.ExpenseManagementService;
 import com.ajinkya.expensetracker.util.enums.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
                 ExpenseInfo expenseInfo = new ExpenseInfo();
+                expenseInfo.setExpenseId(e.getExpenseId());
                 expenseInfo.setExpenseTitle(e.getExpenseTitle());
                 expenseInfo.setAmount(e.getAmount());
                 expenseInfo.setNote(e.getNote());
@@ -81,6 +83,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
                 ExpenseInfo expenseInfo = new ExpenseInfo();
+                expenseInfo.setExpenseId(e.getExpenseId());
                 expenseInfo.setExpenseTitle(e.getExpenseTitle());
                 expenseInfo.setAmount(e.getAmount());
                 expenseInfo.setNote(e.getNote());
@@ -102,6 +105,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             List<ExpenseInfo> expenseInfoList = new ArrayList<>();
             for (ExpenseEntity e : expenseEntity) {
                 ExpenseInfo expenseInfo = new ExpenseInfo();
+                expenseInfo.setExpenseId(e.getExpenseId());
                 expenseInfo.setExpenseTitle(e.getExpenseTitle());
                 expenseInfo.setAmount(e.getAmount());
                 expenseInfo.setNote(e.getNote());
@@ -126,6 +130,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 List<ExpenseInfo> expenseInfoList = new ArrayList<>();
                 for (ExpenseEntity e : expenseEntity) {
                     ExpenseInfo expenseInfo = new ExpenseInfo();
+                    expenseInfo.setExpenseId(e.getExpenseId());
                     expenseInfo.setExpenseTitle(e.getExpenseTitle());
                     expenseInfo.setAmount(e.getAmount());
                     expenseInfo.setNote(e.getNote());
@@ -139,6 +144,28 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
         } catch (ParseException pe) {
             pe.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public NewExpenseResponse deleteExpenseById(long expenseId) {
+        long deletedExpenseId = expenseDao.deleteExpenseByExpenseId(expenseId);
+        if (deletedExpenseId > 0) {
+            return new NewExpenseResponse(true, "Record deleted successfully!");
+        } else {
+            return new NewExpenseResponse(false, "Record deletion failed!");
+        }
+    }
+
+    @Override
+    @Transactional
+    public NewExpenseResponse updateExpenseById(long expenseId, long amount) {
+        long updatedExpenseId = expenseDao.updateExpenseAmountByExpenseId(amount, expenseId);
+        if (updatedExpenseId > 0) {
+            return new NewExpenseResponse(true, "Record updated successfully!");
+        } else {
+            return new NewExpenseResponse(false, "Record update failed!");
         }
     }
 }

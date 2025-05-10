@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExpenseInfo {
+    private long expenseId;
     private String expenseTitle;
     private long amount;
     private String note;

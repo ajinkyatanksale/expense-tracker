@@ -15,4 +15,6 @@ public interface ExpenseManagementService {
     public GetAllExpenseResponse getAllExpensesByTitle(long customerId, String title);
     public GetAllExpenseResponse getAllExpensesByCategory(long customerId, Category category);
     public GetAllExpenseResponse getAllExpensesByDate(long customerId, String date);
+    public NewExpenseResponse deleteExpenseById(long expenseId);
+    public NewExpenseResponse updateExpenseById(long expenseId, long amount);
 }

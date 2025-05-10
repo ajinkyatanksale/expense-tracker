@@ -3,6 +3,7 @@ package com.ajinkya.expensetracker.dao;
 import com.ajinkya.expensetracker.entity.ExpenseEntity;
 import com.ajinkya.expensetracker.entity.UserEntity;
 import com.ajinkya.expensetracker.util.enums.Category;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,11 @@ public interface ExpenseDao extends CrudRepository<ExpenseEntity, Long>  {
 
     @Query("SELECT e FROM ExpenseEntity e WHERE e.user = :user AND DATE(e.insertDate) = :date")
     List<ExpenseEntity> findExpenseByUserAndDate(@Param("user") UserEntity user, @Param("date") Timestamp date);
+
+    Long deleteExpenseByExpenseId(long expenseId);
+
+    @Modifying
+    @Query("UPDATE ExpenseEntity e SET e.amount = :amount WHERE e.expenseId = :expenseId")
+    int updateExpenseAmountByExpenseId(@Param("amount") long amount, @Param("expenseId") long expenseId);
+
 }
