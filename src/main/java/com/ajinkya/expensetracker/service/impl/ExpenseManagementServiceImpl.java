@@ -10,6 +10,8 @@ import com.ajinkya.expensetracker.entity.ExpenseEntity;
 import com.ajinkya.expensetracker.entity.UserEntity;
 import com.ajinkya.expensetracker.service.ExpenseManagementService;
 import com.ajinkya.expensetracker.util.enums.Category;
+import com.ajinkya.expensetracker.util.enums.FailureEnum;
+import com.ajinkya.expensetracker.util.exception.FailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
     private final String LOG_EXIT = "EXIT";
 
     @Override
-    public GetAllExpenseResponse getAllExpenses(long customerId) {
+    public GetAllExpenseResponse getAllExpenses(long customerId) throws FailureException {
         String logPrefix = "getAllExpenses()";
         logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         GetAllExpenseResponse getAllExpenseResponse = new GetAllExpenseResponse();
@@ -58,13 +60,15 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
             logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
+        } else {
+            throw new FailureException("User not found", FailureEnum.CUSTOMER_NOT_FOUND);
         }
         logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
     }
 
     @Override
-    public ExpenseResponse addNewExpense(NewExpenseRequest newExpenseRequest, long customerId) {
+    public ExpenseResponse addNewExpense(NewExpenseRequest newExpenseRequest, long customerId) throws FailureException{
         String logPrefix = "addNewExpense()";
         logger.debug(logPrefix + "[" + LOG_ENTRY + "]");
         ExpenseEntity expenseEntity = new ExpenseEntity();
@@ -85,6 +89,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             expenseResponse.setMessage("Error occurred while adding new expense. Please try again!!");
             expenseResponse.setRecordCreated(false);
             logger.error(logPrefix + "Error occurred while adding new expense for customerId [" + customerId + "]");
+            throw new FailureException("New record insertion failed", FailureEnum.RECORD_INSERTION_FAILED);
         }
         logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return expenseResponse;
@@ -112,6 +117,8 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
             logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
+        } else {
+            throw new FailureException("User not found", FailureEnum.CUSTOMER_NOT_FOUND);
         }
         logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
@@ -139,6 +146,8 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
             }
             getAllExpenseResponse.setExpenseInfos(expenseInfoList);
             logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
+        } else {
+            throw new FailureException("User not found", FailureEnum.CUSTOMER_NOT_FOUND);
         }
         logger.debug(logPrefix + "[" + LOG_EXIT + "]");
         return getAllExpenseResponse;
@@ -169,12 +178,14 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
                 }
                 getAllExpenseResponse.setExpenseInfos(expenseInfoList);
                 logger.debug(logPrefix + expenseInfoList.size() + " Expenses retrieved for customerId [" + user.get().getCustomerId() + "]");
+            } else {
+                throw new FailureException("User not found", FailureEnum.CUSTOMER_NOT_FOUND);
             }
             logger.debug(logPrefix + "[" + LOG_EXIT + "]");
             return getAllExpenseResponse;
         } catch (ParseException pe) {
             logger.error(logPrefix + pe.getMessage());
-            return null;
+            throw new FailureException(pe.getMessage(), FailureEnum.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -187,7 +198,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
         if (deletedExpenseId > 0) {
             return new ExpenseResponse(true, "Record deleted successfully!");
         } else {
-            return new ExpenseResponse(false, "Record deletion failed!");
+            throw new FailureException("Record deletion failed", FailureEnum.RECORD_DELETION_FAILED);
         }
     }
 
@@ -200,7 +211,7 @@ public class ExpenseManagementServiceImpl implements ExpenseManagementService {
         if (updatedExpenseId > 0) {
             return new ExpenseResponse(true, "Record updated successfully!");
         } else {
-            return new ExpenseResponse(false, "Record update failed!");
+            throw new FailureException("Record update failed", FailureEnum.RECORD_UPDATE_FAILED);
         }
     }
 }
